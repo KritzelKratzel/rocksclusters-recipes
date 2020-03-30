@@ -3,13 +3,16 @@ This recipe describes how to update the kernel shipped with CentOS 7.4 on which 
 
 ## Step 1 - Get a slightly newer GNU C Compiler
 
-CentOS 7.4 ships `gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-16)` which is pretty old and does not have the [retpoline patches](https://support.google.com/faqs/answer/7625886), required to counter the [Spectre security vulnerability](https://en.wikipedia.org/wiki/Spectre_(security_vulnerability)). As we are not on a cutting edge system it is OK to update gcc to release 7.
+CentOS 7.4 ships `gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-16)` which is pretty old and does not have the [retpoline patches](https://support.google.com/faqs/answer/7625886), required to counter the [Spectre security vulnerability](https://en.wikipedia.org/wiki/Spectre_(security_vulnerability)). As we are not on a cutting edge system it is sufficient to update GCC to release 7. At the time of writing this guide GCC 7.5.0 was the most recent version from this release series. Before compilation can start a small number of tools has to be installed.
 
-Rewind to your build-VM to the snapshot made after installation.
+```bash
+yum install gmp-devel mpfr-devel libmpc-devel
+```
+
+Download, unpack, configure, make and install GCC 7.5.0 like given in the following commands. The compiler will be installed into default location at `/usr/local`.
 
 ```bash
 cd /root
-yum install gmp-devel mpfr-devel libmpc-devel
 wget http://mirror.koddos.net/gcc/releases/gcc-7.5.0/gcc-7.5.0.tar.xz
 tar xf gcc-7.5.0.tar.xz && cd gcc-7.5.0
 ./configure --disable-multilib
@@ -36,13 +39,13 @@ Now we are ready to create a new set of kernel RPM-files for our Rocksclusters i
 
 ## Step 2 - Prepare SPEC file for kernel 5.4.28 (LTS)
 
-The key is to use and to modify the SPEC file which the guy at ElRepo are using. At the time of writing the current kernel version for 5.5 mainline kernel was 5.5.13. Modify following commands for newer kernel versions accordingly. However a little yum update is necessary before we can start:
+The key is to use and to modify the SPEC file which the friends at ElRepo are using.  Before we can start some additional packages essentiell for kernel compilation need to be installed:
 
 ```bash
 yum install flex asciidoc xmlto
 ```
 
-This installs missing packages essentially for kernel compilation. Now go on with preparing the kernel sources and kernel configuration. Basically we extract some stuff form the ElRepo source RPM-file and discard the unnecessary files. Then we modify the SPEC file to our requirements.
+Now go on with preparing the kernel sources and kernel configuration. Basically we extract some stuff form the ElRepo source RPM-file and discard the unnecessary files. Then we modify the SPEC file to our requirements. At the time of writing the current kernel version for 5.5 mainline kernel was 5.5.13. Modify following commands for newer kernel versions accordingly.
 
 ```bash
 cd /root
@@ -87,16 +90,16 @@ Now go on with modifying the SPEC file still located in /root:
 ```bash
 cd /root
 cp kernel-ml-5.5.spec kernel-5.4.28-1.spec
-vim kernel-5-4-28.spec
+vim kernel-5.4.28-1.spec
 ```
 
-Apply changes to the following lines. Basically we need to take care of the right package naming.
+Basically we need to take care of the right package naming. Therefore apply changes to the following lines: 
 
-- Line 4: %define LKAver 5.4.28
-- Line 7: %define buildid .el7
-- Line 51: %define with_doc 1
-- Line 63: %define pkg_release 1%{?buildid}
-- Line 93: Name: kernel
+- Line 4: `%define LKAver 5.4.28`
+- Line 7: `%define buildid .el7`
+- Line 51: `%define with_doc 1`
+- Line 63: `%define pkg_release 1%{?buildid}`
+- Line 93: `Name: kernel`
 
 
 The diff between both SPEC files should look like this, with 5.5.13 being the kernel currently used in ElRepos's original SPEC file:
@@ -129,6 +132,6 @@ The diff between both SPEC files should look like this, with 5.5.13 being the ke
 Now kick off kernel compilation and kernel rpm creation. This takes a while and does not produce a lot of terminal output because make is launched internally in silent mode `make -s`.
 
 ```bash
-rpmbuild -bb kernel-5.4.28-1.spec --without perf --with doc
+rpmbuild -bb kernel-5.4.28-1.spec --without perf
 ```
 
