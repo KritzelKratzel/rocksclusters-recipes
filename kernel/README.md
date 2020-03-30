@@ -94,9 +94,8 @@ Apply changes to the following lines. Basically we need to take care of the righ
 
 - Line 4: %define LKAver 5.4.28
 - Line 7: %define buildid .el7
-
+- Line 51: %define with_doc 1
 - Line 63: %define pkg_release 1%{?buildid}
-
 - Line 93: Name: kernel
 
 
@@ -112,6 +111,10 @@ The diff between both SPEC files should look like this, with 5.5.13 being the ke
 < #define buildid .
 ---
 > %define buildid .el7
+51c51
+< %define with_doc 0
+---
+> %define with_doc 1
 63c63
 < %define pkg_release 1%{?buildid}%{?dist}
 ---
