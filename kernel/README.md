@@ -345,7 +345,7 @@ You have finally made it! 💪🏻 Now you are ready to reinstall your compute-n
 
 # References
 
-The preceding recipe is heavily inspired thy these references:
+The preceding recipe is heavily inspired by these references:
 
 1. http://disbauxes.upc.es/code/analysis/send-a-newer-pxe-kernel-version-to-a-new-computer-node-on-rocks-cluster-6-2-without-altering-the-frontend/
 2. https://lists.sdsc.edu/pipermail/npaci-rocks-discussion/2018-January/071263.html
