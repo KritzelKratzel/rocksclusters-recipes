@@ -3,12 +3,6 @@ This recipe describes how to update the kernel shipped with CentOS 7.4 on which 
 
 All the procedures outlined in this document have been extensively tested on a virtualized cluster using VMWare Fusion 11.5.3 running on an 2017 MacBook Pro. Use it on your own risk.
 
-Author: Michael Sabielny
-
-Contact: kritzel.kratzel@gmx.de
-
-Date: 2020-03-31
-
 ------
 
 ## Step 1 - Get a slightly newer GNU C Compiler
@@ -191,7 +185,7 @@ Wrote: /root/rpmbuild/RPMS/x86_64/kernel-tools-libs-devel-5.4.28-1.el7.x86_64.rp
 ...
 ```
 
-Copy the seven files in `/root/rpmbuild/RPMS/x86_64` to `/export/rocks/install/contrib/7.0/x86_64/RPMS/` ...
+The kernel source RPM file `/root/rpmbuild/SRPMS/kernel-5.4.28-1.el7.nosrc.rpm` is not important for the moment. More importantly, copy the seven binary RPM-files in `/root/rpmbuild/RPMS/x86_64` to `/export/rocks/install/contrib/7.0/x86_64/RPMS/` ...
 
 ```bash
 cp -v /root/rpmbuild/RPMS/x86_64/kernel-* /export/rocks/install/contrib/7.0/x86_64/RPMS/
