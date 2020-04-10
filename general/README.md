@@ -97,7 +97,7 @@ vim version.mk
 make roll 2>&1 | tee /tmp/make-kernel-roll.out
 ```
 
-Surprisingly the `make roll`  step fails nearly at ts end on CentOS 7.7 with complains of not having enough space on device:
+Surprisingly on CentOS 7.7 upgraded rocks installations the `make roll`  step fails nearly at the end with `No space left on device` complaints:
 
 ```bash
 ...
@@ -123,3 +123,6 @@ rpm -q --changelog lorax
 ```
 
 Edit ``src/rocks-boot-7/Makefile``  and change the lorax call in line 84 from `lorax $(ISFINAL) ...`  to `lorax --rootfs-size 3 $(ISFINAL) ...` which extends the root filesystem size to 3 GB. Then run the `make roll`  step as outlined above.
+
+An updated kernel roll based on kernel `3.10.0-1062.18.1` released on 2020-03-24 is available [here](https://drive.google.com/drive/folders/15YaHVG9lzqc7sb2XkF48p_7-3cJnj5tZ).
+
