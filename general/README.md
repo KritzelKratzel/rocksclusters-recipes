@@ -4,9 +4,108 @@ Loose collection of tips, tricks and related stuff. My general advice - practice
 
 This is work in progress.
 
-Last edited: 2020-04-10
+Last edited: 2020-04-14
 
 ------
+
+## NVIDIA Kernel Module via DKMS
+
+Another way of getting a NVIDIA kernel module on a Rocksclusters compute-node without `cuda-roll` or lousy self-extracting `*.run` files. Just right for applications like [CST Studio Suite](https://www.3ds.com/de/produkte-und-services/simulia/produkte/cst-studio-suite/) on Linux compute clusters. Here in this case we use current driver version `440.64.00` for compute-nodes equipped with Tesla V100 or V100S GPU cards. The following procedure is useful in particular for corporate compute clusters with limited access to open-source software repositories due to tight firewall and proxy-server limitations.
+
+------
+
+On frontend node `wget` files or download and transfer otherwise from 
+
+- http://ftp-stud.hs-esslingen.de/pub/epel/7/x86_64/Packages/d/dkms-2.8.1-4.20200214git5ca628c.el7.noarch.rpm
+- https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/
+
+to `/export/rocks/install/contrib/7.0/x86_64/RPMS` until directory is filled like this:
+
+```bash
+[root@frontend-0-0 install]# ls contrib/7.0/x86_64/RPMS/
+dkms-2.8.1-4.20200214git5ca628c.el7.noarch.rpm
+kmod-nvidia-latest-dkms-440.64.00-1.el7.x86_64.rpm
+nvidia-driver-latest-440.64.00-1.el7.x86_64.rpm
+nvidia-driver-latest-cuda-440.64.00-1.el7.x86_64.rpm
+nvidia-driver-latest-cuda-libs-440.64.00-1.el7.x86_64.rpm
+nvidia-driver-latest-devel-440.64.00-1.el7.x86_64.rpm
+nvidia-driver-latest-libs-440.64.00-1.el7.x86_64.rpm
+nvidia-driver-latest-NvFBCOpenGL-440.64.00-1.el7.x86_64.rpm
+nvidia-driver-latest-NVML-440.64.00-1.el7.x86_64.rpm
+nvidia-modprobe-latest-440.64.00-1.el7.x86_64.rpm
+nvidia-persistenced-latest-440.64.00-1.el7.x86_64.rpm
+nvidia-xconfig-latest-440.64.00-1.el7.x86_64.rpm
+yum-plugin-nvidia-0.5-1.el7.noarch.rpm
+[root@frontend-0-0 install]# 
+```
+
+Edit file `/export/rocks/install/site-profiles/7.0/nodes/extend-compute.xml`. Add the following packages between `pre`  and `post` section:
+
+```xml
+...
+</pre>
+
+<!-- contrib packages -->
+<package> dkms </package>
+<package> kmod-nvidia-latest-dkms </package>
+<package> nvidia-driver-latest </package>
+<package> nvidia-driver-latest-cuda </package>
+<package> nvidia-driver-latest-cuda-libs </package>
+<package> nvidia-driver-latest-devel </package>
+<package> nvidia-driver-latest-libs </package>
+<package> nvidia-driver-latest-NvFBCOpenGL </package>
+<package> nvidia-driver-latest-NVML </package>
+<package> nvidia-modprobe-latest </package>
+<package> nvidia-persistenced-latest </package>
+<package> nvidia-xconfig-latest </package>
+<package> yum-plugin-nvidia </package>
+
+<!-- os roll packages determined by manual package dependency analysis -->
+<package> libglvnd-gles </package>
+<package> libglvnd-opengl </package>
+<package> libvdpau </package>
+<package> vulkan-filesystem </package>
+<package> xorg-x11-server-Xorg </package>
+<package> libXdmcp </package>
+<package> libXfont2 </package>
+<package> libxkbfile </package>
+<package> xorg-x11-server-common </package>
+<package> xorg-x11-xkb-utils </package>
+<package> zlib-devel </package>
+<package> elfutils-libelf-devel </package>
+
+<post>
+  /usr/bin/systemctl enable dkms
+</post>
+...
+```
+
+Rebuild rocks distribution and reinstall compute nodes:
+
+```bash
+cd /export/rocks/install
+rocks create distro
+rocks set host boot compute-X-Y action=install
+rocks run host compute-X-Y reboot
+```
+
+Test kernel module after compute-node reinstall:
+
+```
+[root@compute-X-Y ~]# dkms status -m nvidia -v 440.64.00
+nvidia, 440.64.00, 3.10.0-1062.18.1.el7.x86_64, x86_64: installed
+[root@compute-X-Y ~]# 
+```
+
+**Next steps:**
+
+- Removal of `nouveau` kernel module, before `modprobe nvidia`
+- Creation of device nodes
+
+**Further reading:**
+
+- https://github.com/shawfdong/hyades/wiki/DKMS-on-CentOS-7
+- https://github.com/dell/dkms
 
 ## Missing cluster-kickstart-pxe
 
@@ -22,6 +121,8 @@ tentakel -g compute_linux /boot/kickstart/cluster-kickstart-pxe
 rocks set host boot compute action=install
 rocks run host compute reboot
 ```
+
+**Notice:** This procedure only works if boot sequence on compute-node shows `PXE` at first place.
 
 Source: https://lists.sdsc.edu/pipermail/npaci-rocks-discussion/2018-September/072183.html
 
