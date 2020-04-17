@@ -4,7 +4,7 @@ Loose collection of tips, tricks and related stuff. My general advice - practice
 
 This is work in progress.
 
-Last edited: 2020-04-14
+Last edited: 2020-04-17
 
 ------
 
@@ -99,11 +99,41 @@ nvidia, 440.64.00, 3.10.0-1062.18.1.el7.x86_64, x86_64: installed
 [root@compute-X-Y ~]# 
 ```
 
-The `nouveau` kernel module is automatically blacklisted, see line 6 in `/etc/default/grub`. 
+The `nouveau` kernel module is automatically blacklisted, see line 6 in `/etc/default/grub`. All 
+required device nodes are created automatically, too.
 
-**Next steps:**
+```bash
+[root@compute-X-Y ~]# nvidia-smi
+Fri Apr 17 09:49:56 2020
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 440.64.00    Driver Version: 440.64.00    CUDA Version: 10.2     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|===============================+======================+======================|
+|   0  Tesla V100-PCIE...  Off  | 00000000:3B:00.0 Off |                  Off |
+| N/A   39C    P0    35W / 250W |      0MiB / 16160MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+|   1  Tesla V100-PCIE...  Off  | 00000000:5E:00.0 Off |                  Off |
+| N/A   40C    P0    36W / 250W |      0MiB / 16160MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
 
-- Creation of device nodes
++-----------------------------------------------------------------------------+
+| Processes:                                                       GPU Memory |
+|  GPU       PID   Type   Process name                             Usage      |
+|=============================================================================|
+|  No running processes found                                                 |
++-----------------------------------------------------------------------------+
+[root@compute-X-Y ~]#
+[root@compute-X-Y ~]# ll /dev/nvidia*
+crw-rw-rw- 1 root root 195,   0 Apr 17 09:42 /dev/nvidia0
+crw-rw-rw- 1 root root 195,   1 Apr 17 09:42 /dev/nvidia1
+crw-rw-rw- 1 root root 195, 255 Apr 17 09:42 /dev/nvidiactl
+crw-rw-rw- 1 root root 195, 254 Apr 17 09:42 /dev/nvidia-modeset
+crw-rw-rw- 1 root root 236,   0 Apr 17 09:42 /dev/nvidia-uvm
+crw-rw-rw- 1 root root 236,   1 Apr 17 09:42 /dev/nvidia-uvm-tools
+[root@compute-X-Y ~]#
+```
 
 **Further reading:**
 
