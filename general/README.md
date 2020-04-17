@@ -98,9 +98,10 @@ nvidia, 440.64.00, 3.10.0-1062.18.1.el7.x86_64, x86_64: installed
 [root@compute-X-Y ~]# 
 ```
 
+The `nouveau` kernel module is automatically blacklisted, see line 6 in `/etc/default/grub`. 
+
 **Next steps:**
 
-- Removal of `nouveau` kernel module, before `modprobe nvidia`
 - Creation of device nodes
 
 **Further reading:**
