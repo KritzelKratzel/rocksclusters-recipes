@@ -74,6 +74,7 @@ Edit file `/export/rocks/install/site-profiles/7.0/nodes/extend-compute.xml`. Ad
 <package> zlib-devel </package>
 <package> elfutils-libelf-devel </package>
 <package> xkeyboard-config </package>
+<package> pciutils </package>
 
 <post>
   /usr/bin/systemctl enable dkms
