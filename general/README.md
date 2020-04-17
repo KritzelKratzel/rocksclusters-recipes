@@ -134,6 +134,14 @@ crw-rw-rw- 1 root root 236,   0 Apr 17 09:42 /dev/nvidia-uvm
 crw-rw-rw- 1 root root 236,   1 Apr 17 09:42 /dev/nvidia-uvm-tools
 [root@compute-X-Y ~]#
 ```
+**Hint:**
+If you get error messages in `/var/log/messages` like this ...
+```bash
+Apr 17 10:23:33 compute-X-Y kernel: NVRM: GPU 0000:d8:00.0: RmInitAdapter failed! (0x26:0xffff:1227)
+Apr 17 10:23:33 compute-X-Y kernel: NVRM: GPU 0000:d8:00.0: rm_init_adapter failed, device minor number 3
+```
+... indicating that not all GPU cards on your compute-node have come up correctly, then power cycle
+the compute-node by unplugging all power cords. Use `nvidia-smi -L` to check if all GPUs are present.
 
 **Further reading:**
 
