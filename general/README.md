@@ -4,38 +4,42 @@ Loose collection of tips, tricks and related stuff. My general advice - practice
 
 This is work in progress.
 
-Last edited: 2020-04-17
+Last edited: 2021-01-18
 
 ------
 
 ## NVIDIA Kernel Module via DKMS
 
-Another way of getting a NVIDIA kernel module on a Rocksclusters compute-node without `cuda-roll` or lousy self-extracting `*.run` files. Just right for applications like [CST Studio Suite](https://www.3ds.com/de/produkte-und-services/simulia/produkte/cst-studio-suite/) on Linux compute clusters. Here in this case we use current driver version `440.64.00` for compute-nodes equipped with Tesla V100 or V100S GPU cards. The following procedure is useful in particular for corporate compute clusters with limited access to open-source software repositories due to tight firewall and proxy-server limitations.
+Another way of getting a NVIDIA kernel module on a Rocksclusters compute-node without `cuda-roll` or lousy self-extracting `*.run` files. Just right for applications like [CST Studio Suite](https://www.3ds.com/de/produkte-und-services/simulia/produkte/cst-studio-suite/) on Linux compute clusters. Here in this case we use current driver version `460.73.01` for compute-nodes running CST Studio Suite Version 2022 and equipped with Tesla V100 or V100S GPU cards. The following procedure is useful in particular for corporate compute clusters with limited access to open-source software repositories as a result of tight firewall and proxy-server configurations.
 
 ------
 
 On frontend node `wget` files or download and transfer otherwise from 
 
-- http://ftp-stud.hs-esslingen.de/pub/epel/7/x86_64/Packages/d/dkms-2.8.1-4.20200214git5ca628c.el7.noarch.rpm
+- http://ftp-stud.hs-esslingen.de/pub/epel/7/x86_64/Packages/d/dkms-3.0.3-1.el7.noarch.rpm
+- http://ftp-stud.hs-esslingen.de/pub/epel/7/x86_64/Packages/o/ocl-icd-2.2.12-1.el7.x86_64.rpm
+- http://ftp-stud.hs-esslingen.de/pub/epel/7/x86_64/Packages/o/opencl-filesystem-1.0-5.el7.noarch.rpm
 - https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/
 
 to `/export/rocks/install/contrib/7.0/x86_64/RPMS` until directory is filled like this:
 
 ```bash
 [root@frontend-0-0 install]# ls contrib/7.0/x86_64/RPMS/
-dkms-2.8.1-4.20200214git5ca628c.el7.noarch.rpm
-kmod-nvidia-latest-dkms-440.64.00-1.el7.x86_64.rpm
-nvidia-driver-latest-440.64.00-1.el7.x86_64.rpm
-nvidia-driver-latest-cuda-440.64.00-1.el7.x86_64.rpm
-nvidia-driver-latest-cuda-libs-440.64.00-1.el7.x86_64.rpm
-nvidia-driver-latest-devel-440.64.00-1.el7.x86_64.rpm
-nvidia-driver-latest-libs-440.64.00-1.el7.x86_64.rpm
-nvidia-driver-latest-NvFBCOpenGL-440.64.00-1.el7.x86_64.rpm
-nvidia-driver-latest-NVML-440.64.00-1.el7.x86_64.rpm
-nvidia-modprobe-latest-440.64.00-1.el7.x86_64.rpm
-nvidia-persistenced-latest-440.64.00-1.el7.x86_64.rpm
-nvidia-xconfig-latest-440.64.00-1.el7.x86_64.rpm
-yum-plugin-nvidia-0.5-1.el7.noarch.rpm
+-rw-r--r-- 1 root root    60216 Jan 18 15:10 dkms-3.0.3-1.el7.noarch.rpm
+-rw-r--r-- 1 root root 25099116 Jan 18 15:10 kmod-nvidia-latest-dkms-460.73.01-1.el7.x86_64.rpm
+-rw-r--r-- 1 root root  2488244 Jan 18 15:10 nvidia-driver-latest-460.73.01-1.el7.x86_64.rpm
+-rw-r--r-- 1 root root   336404 Jan 18 15:10 nvidia-driver-latest-cuda-460.73.01-1.el7.x86_64.rpm
+-rw-r--r-- 1 root root 27017728 Jan 18 15:10 nvidia-driver-latest-cuda-libs-460.73.01-1.el7.x86_64.rpm
+-rw-r--r-- 1 root root    19060 Jan 18 15:10 nvidia-driver-latest-devel-460.73.01-1.el7.x86_64.rpm
+-rw-r--r-- 1 root root 86752272 Jan 18 15:10 nvidia-driver-latest-libs-460.73.01-1.el7.x86_64.rpm
+-rw-r--r-- 1 root root   122356 Jan 18 15:10 nvidia-driver-latest-NvFBCOpenGL-460.73.01-1.el7.x86_64.rpm
+-rw-r--r-- 1 root root   512568 Jan 18 15:10 nvidia-driver-latest-NVML-460.73.01-1.el7.x86_64.rpm
+-rw-r--r-- 1 root root    34324 Jan 18 15:10 nvidia-modprobe-latest-460.73.01-1.el7.x86_64.rpm
+-rw-r--r-- 1 root root    37196 Jan 18 15:10 nvidia-persistenced-latest-460.73.01-1.el7.x86_64.rpm
+-rw-r--r-- 1 root root    96456 Jan 18 15:10 nvidia-xconfig-latest-460.73.01-1.el7.x86_64.rpm
+-rw-r--r-- 1 root root    43935 Jan 18 15:10 ocl-icd-2.2.12-1.el7.x86_64.rpm
+-rw-r--r-- 1 root root     4024 Jan 18 15:10 opencl-filesystem-1.0-5.el7.noarch.rpm
+-rw-r--r-- 1 root root    10112 Jan 18 15:10 yum-plugin-nvidia-0.5-1.el7.noarch.rpm
 [root@frontend-0-0 install]# 
 ```
 
@@ -58,6 +62,8 @@ Edit file `/export/rocks/install/site-profiles/7.0/nodes/extend-compute.xml`. Ad
 <package> nvidia-modprobe-latest </package>
 <package> nvidia-persistenced-latest </package>
 <package> nvidia-xconfig-latest </package>
+<package> ocl-icd </package>
+<package> opencl-filesystem </package>
 <package> yum-plugin-nvidia </package>
 
 <!-- os roll packages determined by manual package dependency analysis -->
@@ -94,8 +100,8 @@ rocks run host compute-X-Y reboot
 Test kernel module after compute-node reinstall:
 
 ```
-[root@compute-X-Y ~]# dkms status -m nvidia -v 440.64.00
-nvidia, 440.64.00, 3.10.0-1062.18.1.el7.x86_64, x86_64: installed
+[root@compute-X-Y ~]# dkms status -m nvidia -v 460.73.01
+nvidia/460.73.01, 3.10.0-1062.18.1.el7.x86_64, x86_64: installed
 [root@compute-X-Y ~]# 
 ```
 
@@ -104,34 +110,53 @@ required device nodes are created automatically, too.
 
 ```bash
 [root@compute-X-Y ~]# nvidia-smi
-Fri Apr 17 09:49:56 2020
+Tue Jan 18 15:42:02 2022
 +-----------------------------------------------------------------------------+
-| NVIDIA-SMI 440.64.00    Driver Version: 440.64.00    CUDA Version: 10.2     |
+| NVIDIA-SMI 460.73.01    Driver Version: 460.73.01    CUDA Version: 11.2     |
 |-------------------------------+----------------------+----------------------+
 | GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
 | Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                               |                      |               MIG M. |
 |===============================+======================+======================|
 |   0  Tesla V100-PCIE...  Off  | 00000000:3B:00.0 Off |                  Off |
-| N/A   39C    P0    35W / 250W |      0MiB / 16160MiB |      0%      Default |
+| N/A   35C    P0    27W / 250W |      4MiB / 32510MiB |      0%      Default |
+|                               |                      |                  N/A |
 +-------------------------------+----------------------+----------------------+
-|   1  Tesla V100-PCIE...  Off  | 00000000:5E:00.0 Off |                  Off |
-| N/A   40C    P0    36W / 250W |      0MiB / 16160MiB |      0%      Default |
+|   1  Tesla V100S-PCI...  Off  | 00000000:5E:00.0 Off |                  Off |
+| N/A   33C    P0    25W / 250W |      4MiB / 32510MiB |      0%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+|   2  Tesla V100S-PCI...  Off  | 00000000:AF:00.0 Off |                  Off |
+| N/A   32C    P0    24W / 250W |      4MiB / 32510MiB |      0%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+|   3  Tesla V100-PCIE...  Off  | 00000000:D8:00.0 Off |                  Off |
+| N/A   33C    P0    24W / 250W |      4MiB / 32510MiB |      0%      Default |
+|                               |                      |                  N/A |
 +-------------------------------+----------------------+----------------------+
 
 +-----------------------------------------------------------------------------+
-| Processes:                                                       GPU Memory |
-|  GPU       PID   Type   Process name                             Usage      |
+| Processes:                                                                  |
+|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+|        ID   ID                                                   Usage      |
 |=============================================================================|
 |  No running processes found                                                 |
 +-----------------------------------------------------------------------------+
 [root@compute-X-Y ~]#
 [root@compute-X-Y ~]# ll /dev/nvidia*
-crw-rw-rw- 1 root root 195,   0 Apr 17 09:42 /dev/nvidia0
-crw-rw-rw- 1 root root 195,   1 Apr 17 09:42 /dev/nvidia1
-crw-rw-rw- 1 root root 195, 255 Apr 17 09:42 /dev/nvidiactl
-crw-rw-rw- 1 root root 195, 254 Apr 17 09:42 /dev/nvidia-modeset
-crw-rw-rw- 1 root root 236,   0 Apr 17 09:42 /dev/nvidia-uvm
-crw-rw-rw- 1 root root 236,   1 Apr 17 09:42 /dev/nvidia-uvm-tools
+crw-rw-rw- 1 root root 195,   0 Jan 18 15:36 /dev/nvidia0
+crw-rw-rw- 1 root root 195,   1 Jan 18 15:36 /dev/nvidia1
+crw-rw-rw- 1 root root 195,   2 Jan 18 15:36 /dev/nvidia2
+crw-rw-rw- 1 root root 195,   3 Jan 18 15:36 /dev/nvidia3
+crw-rw-rw- 1 root root 195, 255 Jan 18 15:36 /dev/nvidiactl
+crw-rw-rw- 1 root root 195, 254 Jan 18 15:36 /dev/nvidia-modeset
+crw-rw-rw- 1 root root 235,   0 Jan 18 15:36 /dev/nvidia-uvm
+crw-rw-rw- 1 root root 235,   1 Jan 18 15:36 /dev/nvidia-uvm-tools
+
+/dev/nvidia-caps:
+total 0
+cr-------- 1 root root 238, 1 Jan 18 15:42 nvidia-cap1
+cr--r--r-- 1 root root 238, 2 Jan 18 15:42 nvidia-cap2
 [root@compute-X-Y ~]#
 ```
 **Hint:**
