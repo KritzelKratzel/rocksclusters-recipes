@@ -4,46 +4,49 @@ Loose collection of tips, tricks and related stuff. My general advice - practice
 
 This is work in progress.
 
-Last edited: 2021-01-18
+Last edited: 2023-12-16
 
 ------
 
 ## NVIDIA Kernel Module via DKMS
 
-Another way of getting a NVIDIA kernel module on a Rocksclusters compute-node without `cuda-roll` or lousy self-extracting `*.run` files. Just right for applications like [CST Studio Suite](https://www.3ds.com/de/produkte-und-services/simulia/produkte/cst-studio-suite/) on Linux compute clusters. Here in this case we use current driver version `460.73.01` for compute-nodes running CST Studio Suite Version 2022 and equipped with Tesla V100 or V100S GPU cards. The following procedure is useful in particular for corporate compute clusters with limited access to open-source software repositories as a result of tight firewall and proxy-server configurations.
+Another way of getting a NVIDIA kernel module on a Rocksclusters compute-node without `cuda-roll` or lousy self-extracting `*.run` files. Just right for applications like [CST Studio Suite](https://www.3ds.com/de/produkte-und-services/simulia/produkte/cst-studio-suite/) on Linux compute clusters. Here in this case we use current driver version `535.54.03` for compute-nodes running CST Studio Suite Version 2024 and equipped with Tesla V100 or V100S GPU cards. The following procedure is useful in particular for corporate compute clusters with limited access to open-source software repositories as a result of tight firewall and proxy-server configurations.
+
+See also: https://updates.cst.com/downloads/GPU_Computing_Guide_2024.pdf
 
 ------
 
-On frontend node `wget` files or download and transfer otherwise from 
-
-- http://ftp-stud.hs-esslingen.de/pub/epel/7/x86_64/Packages/d/dkms-3.0.3-1.el7.noarch.rpm
-- http://ftp-stud.hs-esslingen.de/pub/epel/7/x86_64/Packages/o/ocl-icd-2.2.12-1.el7.x86_64.rpm
-- http://ftp-stud.hs-esslingen.de/pub/epel/7/x86_64/Packages/o/opencl-filesystem-1.0-5.el7.noarch.rpm
-- https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/
-
-to `/export/rocks/install/contrib/7.0/x86_64/RPMS` until directory is filled like this:
+Change into `/export/rocks/install/contrib/<version>/x86_64/RPMS`  (replace `<version>` with your actual Rocks version) and `wget` the following RPM files:
 
 ```bash
-[root@frontend-0-0 install]# ls contrib/7.0/x86_64/RPMS/
--rw-r--r-- 1 root root    60216 Jan 18 15:10 dkms-3.0.3-1.el7.noarch.rpm
--rw-r--r-- 1 root root 25099116 Jan 18 15:10 kmod-nvidia-latest-dkms-460.73.01-1.el7.x86_64.rpm
--rw-r--r-- 1 root root  2488244 Jan 18 15:10 nvidia-driver-latest-460.73.01-1.el7.x86_64.rpm
--rw-r--r-- 1 root root   336404 Jan 18 15:10 nvidia-driver-latest-cuda-460.73.01-1.el7.x86_64.rpm
--rw-r--r-- 1 root root 27017728 Jan 18 15:10 nvidia-driver-latest-cuda-libs-460.73.01-1.el7.x86_64.rpm
--rw-r--r-- 1 root root    19060 Jan 18 15:10 nvidia-driver-latest-devel-460.73.01-1.el7.x86_64.rpm
--rw-r--r-- 1 root root 86752272 Jan 18 15:10 nvidia-driver-latest-libs-460.73.01-1.el7.x86_64.rpm
--rw-r--r-- 1 root root   122356 Jan 18 15:10 nvidia-driver-latest-NvFBCOpenGL-460.73.01-1.el7.x86_64.rpm
--rw-r--r-- 1 root root   512568 Jan 18 15:10 nvidia-driver-latest-NVML-460.73.01-1.el7.x86_64.rpm
--rw-r--r-- 1 root root    34324 Jan 18 15:10 nvidia-modprobe-latest-460.73.01-1.el7.x86_64.rpm
--rw-r--r-- 1 root root    37196 Jan 18 15:10 nvidia-persistenced-latest-460.73.01-1.el7.x86_64.rpm
--rw-r--r-- 1 root root    96456 Jan 18 15:10 nvidia-xconfig-latest-460.73.01-1.el7.x86_64.rpm
--rw-r--r-- 1 root root    43935 Jan 18 15:10 ocl-icd-2.2.12-1.el7.x86_64.rpm
--rw-r--r-- 1 root root     4024 Jan 18 15:10 opencl-filesystem-1.0-5.el7.noarch.rpm
--rw-r--r-- 1 root root    10112 Jan 18 15:10 yum-plugin-nvidia-0.5-1.el7.noarch.rpm
-[root@frontend-0-0 install]# 
+# From CentOS EPEL repository
+wget http://ftp-stud.hs-esslingen.de/pub/epel/7/x86_64/Packages/d/dkms-3.0.12-1.el7.noarch.rpm
+wget http://ftp-stud.hs-esslingen.de/pub/epel/7/x86_64/Packages/o/ocl-icd-2.2.12-1.el7.x86_64.rpm
+wget http://ftp-stud.hs-esslingen.de/pub/epel/7/x86_64/Packages/o/opencl-filesystem-1.0-5.el7.noarch.rpm
+
+# From NVIDIA developer repository
+wget https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/kmod-nvidia-latest-dkms-535.54.03-1.el7.x86_64.rpm
+wget https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/nvidia-driver-latest-535.54.03-1.el7.x86_64.rpm
+wget https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/nvidia-driver-latest-cuda-535.54.03-1.el7.x86_64.rpm
+wget https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/nvidia-driver-latest-cuda-libs-535.54.03-1.el7.x86_64.rpm
+wget https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/nvidia-driver-latest-devel-535.54.03-1.el7.x86_64.rpm
+wget https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/nvidia-driver-latest-libs-535.54.03-1.el7.x86_64.rpm
+wget https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/nvidia-driver-latest-NvFBCOpenGL-535.54.03-1.el7.x86_64.rpm
+wget https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/nvidia-driver-latest-NVML-535.54.03-1.el7.x86_64.rpm
+wget https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/nvidia-modprobe-latest-535.54.03-1.el7.x86_64.rpm
+wget https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/nvidia-persistenced-latest-535.54.03-1.el7.x86_64.rpm
+wget https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/nvidia-xconfig-latest-535.54.03-1.el7.x86_64.rpm
+wget https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/yum-plugin-nvidia-0.5-1.el7.noarch.rpm
 ```
 
-Edit file `/export/rocks/install/site-profiles/7.0/nodes/extend-compute.xml`. Add the following packages between `pre`  and `post` section:
+Edit file `/export/rocks/install/site-profiles/<version>/nodes/extend-compute.xml`. If not yet existent, create it from `skeleton.xml`:
+
+```bash
+cd cd /export/rocks/install/site-profiles/<version>/nodes/
+cp skeleton.xml extend-compute.xml
+```
+
+Add the following packages between `pre`  and `post` section:
 
 ```xml
 ...
@@ -67,20 +70,18 @@ Edit file `/export/rocks/install/site-profiles/7.0/nodes/extend-compute.xml`. Ad
 <package> yum-plugin-nvidia </package>
 
 <!-- os roll packages determined by manual package dependency analysis -->
+<package> elfutils-libelf-devel </package>
+<package> libXdmcp </package>
+<package> libXfont2 </package>
 <package> libglvnd-gles </package>
 <package> libglvnd-opengl </package>
 <package> libvdpau </package>
+<package> libxkbfile </package>
 <package> vulkan-filesystem </package>
 <package> xorg-x11-server-Xorg </package>
-<package> libXdmcp </package>
-<package> libXfont2 </package>
-<package> libxkbfile </package>
 <package> xorg-x11-server-common </package>
 <package> xorg-x11-xkb-utils </package>
 <package> zlib-devel </package>
-<package> elfutils-libelf-devel </package>
-<package> xkeyboard-config </package>
-<package> pciutils </package>
 
 <post>
   /usr/bin/systemctl enable dkms
@@ -100,8 +101,8 @@ rocks run host compute-X-Y reboot
 Test kernel module after compute-node reinstall:
 
 ```
-[root@compute-X-Y ~]# dkms status -m nvidia -v 460.73.01
-nvidia/460.73.01, 3.10.0-1062.18.1.el7.x86_64, x86_64: installed
+[root@compute-X-Y ~]# dkms status -m nvidia -v 535.54.03
+nvidia/535.54.03, 3.10.0-1160.105.1.el7.x86_64, x86_64: installed
 [root@compute-X-Y ~]# 
 ```
 
@@ -110,9 +111,9 @@ required device nodes are created automatically, too.
 
 ```bash
 [root@compute-X-Y ~]# nvidia-smi
-Tue Jan 18 15:42:02 2022
+<date and time>
 +-----------------------------------------------------------------------------+
-| NVIDIA-SMI 460.73.01    Driver Version: 460.73.01    CUDA Version: 11.2     |
+| NVIDIA-SMI 535.54.03    Driver Version: 535.54.03    CUDA Version:          |
 |-------------------------------+----------------------+----------------------+
 | GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
 | Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
@@ -161,6 +162,7 @@ cr--r--r-- 1 root root 238, 2 Jan 18 15:42 nvidia-cap2
 ```
 **Hint:**
 If you get error messages in `/var/log/messages` like this ...
+
 ```bash
 Apr 17 10:23:33 compute-X-Y kernel: NVRM: GPU 0000:d8:00.0: RmInitAdapter failed! (0x26:0xffff:1227)
 Apr 17 10:23:33 compute-X-Y kernel: NVRM: GPU 0000:d8:00.0: rm_init_adapter failed, device minor number 3
